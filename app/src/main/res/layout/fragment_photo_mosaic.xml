@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <RelativeLayout
+        android:id="@+id/relative_controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/button_pick_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:text="@string/pick_image" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/image_view_selected_image"
+        android:layout_width="300dp"
+        android:layout_height="200dp"
+        android:layout_below="@+id/relative_controls"
+        android:layout_centerHorizontal="true" />
+
+
+    <ImageView
+        android:id="@+id/image_view_test_selected_image"
+        android:layout_width="300dp"
+        android:layout_height="200dp"
+        android:layout_below="@id/image_view_selected_image"
+        android:layout_centerHorizontal="true" />
+
+
+</RelativeLayout>
