@@ -3,5 +3,9 @@
     <string name="pick_image_from_gallery">Pick Image From Gallery</string>
     <string name="pick_image">Pick Image</string>
     <string name="error_with_image_size">Error with Image size</string>
+    <string name="please_select_image">Please select an image</string>
+    <string name="dividing_the_image">Dividing the image</string>
+    <string name="getting_average_colors">Getting average colors</string>
+    <string name="retrieving_image">Retrieving images</string>
 
 </resources>

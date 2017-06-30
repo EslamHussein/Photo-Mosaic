@@ -1,10 +1,11 @@
-package com.canva.util;
+package com.canva.photomosaic.business;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
 import com.canva.photomosaic.R;
 import com.canva.photomosaic.model.dto.Tile;
+import com.canva.util.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,12 +17,17 @@ public class BitmapDivider {
     private int tileWidth;
     private int tileHeight;
 
-    public BitmapDivider(int tileWidth, int tileHeight) {
+    private Bitmap originalBitmap;
+
+
+    public BitmapDivider(Bitmap originalBitmap, int tileWidth, int tileHeight) {
         this.tileWidth = tileWidth;
         this.tileHeight = tileHeight;
+        this.originalBitmap = originalBitmap;
+
     }
 
-    public List<List<Tile>> divide(Bitmap originalBitmap) throws Exception {
+    public List<List<Tile>> divide() throws Exception {
         int rowTilesLength = calculateLength(originalBitmap.getHeight(), tileHeight); // l tool
         int columnTilesLength = calculateLength(originalBitmap.getWidth(), tileWidth); // l 3ard
 
@@ -62,39 +68,5 @@ public class BitmapDivider {
         return (bitmapLength + tileLength - 1) / tileLength;
     }
 
-
-    public Tile combineBitmapsToRow(List<Tile> tiles, int width, int height) {
-
-        Tile tile = new Tile();
-
-        tile.setXPos(tiles.get(0).getXPos());
-
-        tile.setYPos(tiles.get(0).getYPos());
-
-
-        Bitmap tempBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(tempBitmap);
-        int left = 0;
-        for (int i = 0; i < tiles.size(); i++) {
-            canvas.drawBitmap(tiles.get(i).getBitmap(), left, 0f, null);
-            left += tiles.get(i).getWidth();
-        }
-        tile.setBitmap(tempBitmap);
-
-        tile.setWidth(width);
-        tile.setHeight(height);
-        return tile;
-    }
-
-    public Bitmap combineImageRowsToBitmaps(List<Tile> bitmaps, int width, int height) {
-        Bitmap temp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(temp);
-        int top = 0;
-        for (int i = 0; i < bitmaps.size(); i++) {
-            canvas.drawBitmap(bitmaps.get(i).getBitmap(), 0f, top, null);
-            top += bitmaps.get(i).getHeight();
-        }
-        return temp;
-    }
 
 }

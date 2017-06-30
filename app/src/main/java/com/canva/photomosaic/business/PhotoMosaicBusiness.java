@@ -1,65 +1,109 @@
 package com.canva.photomosaic.business;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 
-import com.canva.base.exception.AppException;
 import com.canva.photomosaic.model.cloud.CloudRepo;
 import com.canva.photomosaic.model.dto.Tile;
-import com.canva.util.BitmapAverageCalculator;
-import com.canva.util.BitmapDivider;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
-/**
- * Created by eslamhusseinawad on 6/27/17.
- */
+import io.reactivex.Observable;
+import io.reactivex.functions.Function;
+
 
 public class PhotoMosaicBusiness {
+
+    private BitmapDivider bitmapDivider;
+    private BitmapAverageCalculator averageCalculator;
+    private CloudRepo cloudRepo;
+    private BitmapCombiner bitmapCombiner;
+
     private static final String TAG = PhotoMosaicBusiness.class.getName();
 
-
-    BitmapDivider bitmapDivider;
-    BitmapAverageCalculator averageCalculator;
-
-    CloudRepo cloudRepo;
-
-    public List<List<Tile>> divideImage(Bitmap originalBitmap) throws Exception {
-
-        bitmapDivider = new BitmapDivider(32, 32);
+    public PhotoMosaicBusiness(Bitmap originalBitmap, int tileWidth, int tileHeight) {
+        bitmapDivider = new BitmapDivider(originalBitmap, tileWidth, tileHeight);
         averageCalculator = new BitmapAverageCalculator();
+        cloudRepo = new CloudRepo();
+        bitmapCombiner = new BitmapCombiner();
+    }
 
-        List<List<Tile>> tiles = bitmapDivider.divide(originalBitmap);// divided to tiles
-        for (int i = 0; i < tiles.size(); i++) {
-            for (int j = 0; j < tiles.get(i).size(); j++) {
-                Tile temp = tiles.get(i).get(j);
-                temp.setAvgColor(averageCalculator.calculate(temp.getBitmap()));
-                tiles.get(i).set(j, temp);
+    public Observable<List<List<Tile>>> divideImage() {
+
+
+        return Observable.fromCallable(new Callable<List<List<Tile>>>() {
+            @Override
+            public List<List<Tile>> call() throws Exception {
+                List<List<Tile>> tiles = bitmapDivider.divide();// divided to tiles
+                return tiles;
             }
+        });
+
+    }
+
+    private Observable<Tile> getEquivalentBitmapTile(final Tile tile) {
+
+
+        return Observable.fromCallable(new Callable<Tile>() {
+            @Override
+            public Tile call() throws Exception {
+                tile.setAvgColor(averageCalculator.calculate(tile.getBitmap()));
+                tile.setNewBitmap(cloudRepo.getImage(tile));
+                return tile;
+
+            }
+        });
+
+    }
+
+    private List<Observable<Tile>> getEquivalentBitmapsTiles(List<Tile> tiles) {
+
+        List<Observable<Tile>> observables = new ArrayList<>();
+        for (Tile tile : tiles) {
+            observables.add(getEquivalentBitmapTile(tile));
         }
+        return observables;
+    }
 
-        return tiles;
+    public Observable<Tile> zipRowOfTilesObservables(List<Tile> tiles, final int originalBitmapWidth) {
+
+        return Observable.zip(getEquivalentBitmapsTiles(tiles), new Function<Object[], Tile>() {
+            @Override
+            public Tile apply(Object[] objects) throws Exception {
+
+                List<Tile> tileList = new ArrayList<>();
+                for (Object object : objects) {
+                    Tile tile = (Tile) object;
+                    tileList.add(tile);
+                }
+
+                return bitmapCombiner.combineBitmapsHorizontal(tileList, originalBitmapWidth, tileList.get(0).getHeight());
+
+
+            }
+        });
 
     }
 
 
-    public Bitmap getBitmap(Tile tile) throws IOException {
-        return cloudRepo.getImage(tile);
-    }
+   /* public Observable<Bitmap> zipRowsToBigTile(List<Observable<Tile>> observableList, final int originalWidth, final int originalHeight) {
 
 
-    public Bitmap mergeBitmap() {
-//        List<Tile> tilesRows = new ArrayList<>();
-//        for (int i = 0; i < tiles.size(); i++) {
-//            Tile tile = bitmapDivider.combineBitmapsToRow(tiles.get(i), originalBitmap.getWidth(), tiles.get(i).get(0).getHeight());
-//            tilesRows.add(tile);
-//        }
-//
-//        return bitmapDivider.combineImageRowsToBitmaps(tilesRows, originalBitmap.getWidth(), originalBitmap.getHeight());
-        return null;
-    }
+        return Observable.zip(observableList, new Function<Object[], Bitmap>() {
+            @Override
+            public Bitmap apply(Object[] objects) throws Exception {
+                List<Tile> tileList = new ArrayList<>();
+                for (Object object : objects) {
+                    Tile tile = (Tile) object;
+                    tileList.add(tile);
+                }
+                return bitmapCombiner.combineBitmapsVertical(tileList, originalWidth, originalHeight);
+            }
+        });
+
+
+    }*/
 
 
 }

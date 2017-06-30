@@ -1,13 +1,15 @@
-package com.canva.util;
+package com.canva.photomosaic.business;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
-/**
- * Created by eslamhusseinawad on 6/27/17.
- */
+import com.canva.photomosaic.model.dto.Tile;
+
+import java.util.List;
 
 public class BitmapAverageCalculator {
+
+
 
     public String calculate(Bitmap bitmap) {
 
@@ -27,8 +29,20 @@ public class BitmapAverageCalculator {
                 // does alpha matter?
             }
         }
-        return String.format("#%02x%02x%02x", (redBucket / pixelCount), greenBucket / pixelCount, blueBucket / pixelCount);
+        return String.format("%02x%02x%02x", (redBucket / pixelCount), greenBucket / pixelCount, blueBucket / pixelCount);
 
+    }
+
+    public List<List<Tile>> getAverageColorForTiles(List<List<Tile>> tilesList) {
+
+        for (int i = 0; i < tilesList.size(); i++) {
+            for (int j = 0; j < tilesList.get(i).size(); j++) {
+                Tile temp = tilesList.get(i).get(j);
+                temp.setAvgColor(calculate(temp.getBitmap()));
+                tilesList.get(i).set(j, temp);
+            }
+        }
+        return tilesList;
     }
 
 

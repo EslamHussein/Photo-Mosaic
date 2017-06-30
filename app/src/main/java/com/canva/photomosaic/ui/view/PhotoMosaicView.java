@@ -3,17 +3,18 @@ package com.canva.photomosaic.ui.view;
 import android.graphics.Bitmap;
 
 import com.canva.base.view.MvpView;
+import com.canva.util.Defs;
 
 public interface PhotoMosaicView extends MvpView {
 
-    void showLoading(String loadingMessage);
+    void showLoading();
 
     void hideLoading();
 
-    void updateStatus(String status, Bitmap updatedBitmap);
+    void updateStatus(@Defs.ImageStatus String status, Bitmap updatedBitmap);
 
-    void success(String status, Bitmap updatedBitmap);
+    void success(Bitmap updatedBitmap);
 
 
-    void failure(String status, String message);
+    void failure(String message);
 }

@@ -13,27 +13,22 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.canva.base.view.BaseFragment;
 import com.canva.photomosaic.R;
 import com.canva.photomosaic.ui.presenter.PhotoMosaicPresenter;
 import com.canva.photomosaic.ui.presenter.PhotoMosaicPresenterImpl;
 import com.canva.photomosaic.ui.view.PhotoMosaicView;
-import com.canva.util.BitmapDivider;
 import com.canva.util.TextUtils;
-
-import java.io.IOException;
 
 
 public class PhotoMosaicFragment extends BaseFragment<PhotoMosaicPresenter> implements PhotoMosaicView {
 
     private Button pickImageButton;
     private ImageView selectedImageView;
-    private ImageView selectedTestImageView;
-
     private static final int PICK_FROM_GALLERY = 1000;
-
+    private TextView statusImageView;
     private ProgressBar progressBar;
 
     public PhotoMosaicFragment() {
@@ -58,9 +53,10 @@ public class PhotoMosaicFragment extends BaseFragment<PhotoMosaicPresenter> impl
         super.onViewCreated(view, savedInstanceState);
         pickImageButton = (Button) view.findViewById(R.id.button_pick_image);
         selectedImageView = (ImageView) view.findViewById(R.id.image_view_selected_image);
-        selectedTestImageView = (ImageView) view.findViewById(R.id.image_view_test_selected_image);
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+        statusImageView = (TextView) view.findViewById(R.id.text_view_status);
 
+        statusImageView.setText(TextUtils.getString(R.string.please_select_image));
         pickImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -88,7 +84,7 @@ public class PhotoMosaicFragment extends BaseFragment<PhotoMosaicPresenter> impl
                     getPresenter().startOperation(bitmap);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    showLoading(e.getMessage());
+                    failure(e.getMessage());
                 }
             }
         }
@@ -101,8 +97,7 @@ public class PhotoMosaicFragment extends BaseFragment<PhotoMosaicPresenter> impl
     }
 
     @Override
-    public void showLoading(String loadingMessage) {
-
+    public void showLoading() {
         progressBar.setVisibility(View.VISIBLE);
 
     }
@@ -116,18 +111,23 @@ public class PhotoMosaicFragment extends BaseFragment<PhotoMosaicPresenter> impl
 
     @Override
     public void updateStatus(String status, Bitmap updatedBitmap) {
-        selectedTestImageView.setImageBitmap(updatedBitmap);
+        if (updatedBitmap != null)
+            selectedImageView.setImageBitmap(updatedBitmap);
+
+        statusImageView.setText(status);
+
+
+    }
+
+
+    @Override
+    public void success(Bitmap updatedBitmap) {
+        selectedImageView.setImageBitmap(updatedBitmap);
 
     }
 
     @Override
-    public void success(String status, Bitmap updatedBitmap) {
-        selectedTestImageView.setImageBitmap(updatedBitmap);
-
-    }
-
-    @Override
-    public void failure(String status, String message) {
+    public void failure(String message) {
         Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
 
     }

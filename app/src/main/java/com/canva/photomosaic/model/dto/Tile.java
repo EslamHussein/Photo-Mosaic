@@ -11,6 +11,7 @@ public class Tile {
     private int xPos;
     private int yPos;
     private transient Bitmap bitmap;
+    private Bitmap newBitmap;
     private String avgColor;
     private int width;
     private int height;
@@ -73,5 +74,13 @@ public class Tile {
 
     public void setAvgColor(String avgColor) {
         this.avgColor = avgColor;
+    }
+
+    public Bitmap getNewBitmap() {
+        return newBitmap;
+    }
+
+    public void setNewBitmap(Bitmap newBitmap) {
+        this.newBitmap = newBitmap;
     }
 }
