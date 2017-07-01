@@ -12,13 +12,15 @@ public class Defs {
     @StringDef({
             DIVIDE_IMAGE,
             COMPLETE,
-            RETRIEVING_IMAGE
+            LOADING_IMAGE,
+            ERROR_MESSAGE
     })
     public @interface ImageStatus {
     }
 
-    public static final String DIVIDE_IMAGE = "dividing_the_image";
-    public static final String COMPLETE = "COMPLETE";
-    public static final String RETRIEVING_IMAGE = "retrieving_image";
+    public static final String DIVIDE_IMAGE = "Dividing the image";
+    public static final String COMPLETE = "Done!,you can select anther image.";
+    public static final String LOADING_IMAGE = "Loading image...";
+    public static final String ERROR_MESSAGE = "Something wrong,Please try again.";
 
 }

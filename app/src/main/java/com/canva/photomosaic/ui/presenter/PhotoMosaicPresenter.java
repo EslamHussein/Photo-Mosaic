@@ -14,7 +14,7 @@ public abstract class PhotoMosaicPresenter extends BasePresenter<PhotoMosaicView
 
     public abstract void divideImage(Bitmap bitmap);
 
-    public abstract void getBitmap(Bitmap originalBitmap, List<List<Tile>> tile, int originalBitmapWidth, int originalBitmapHeight);
+    public abstract void showPhotoMosaic(Bitmap originalBitmap, List<List<Tile>> tile, int originalBitmapWidth, int originalBitmapHeight);
 
 }
 

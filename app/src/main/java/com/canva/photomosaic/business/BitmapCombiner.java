@@ -33,7 +33,7 @@ public class BitmapCombiner {
 
     public Bitmap combineBitmapsVertical(Bitmap originalBitmap, Tile newTile) {
         Bitmap smallBitmap = Bitmap.createBitmap(newTile.getWidth(), newTile.getHeight(), Bitmap.Config.ARGB_8888);
-        smallBitmap.eraseColor(Color.TRANSPARENT);
+        smallBitmap.eraseColor(Color.WHITE);
         Canvas canvas = new Canvas(originalBitmap);
         int top = newTile.getYPos();
         canvas.drawBitmap(smallBitmap, 0f, top, null);

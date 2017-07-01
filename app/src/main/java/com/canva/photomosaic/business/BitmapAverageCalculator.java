@@ -27,7 +27,6 @@ public class BitmapAverageCalculator {
                 redBucket += Color.red(c);
                 greenBucket += Color.green(c);
                 blueBucket += Color.blue(c);
-                // does alpha matter?
             }
         }
         return String.format("%02x%02x%02x", (redBucket / pixelCount), greenBucket / pixelCount, blueBucket / pixelCount);

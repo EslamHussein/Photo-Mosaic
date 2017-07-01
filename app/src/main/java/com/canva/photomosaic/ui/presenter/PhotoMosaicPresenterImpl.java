@@ -1,23 +1,16 @@
 package com.canva.photomosaic.ui.presenter;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 
-import com.canva.photomosaic.business.BitmapCombiner;
 import com.canva.photomosaic.business.PhotoMosaicBusiness;
 import com.canva.photomosaic.model.dto.Tile;
 import com.canva.util.Defs;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.MaybeObserver;
-import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.BiFunction;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class PhotoMosaicPresenterImpl extends PhotoMosaicPresenter {
@@ -26,7 +19,7 @@ public class PhotoMosaicPresenterImpl extends PhotoMosaicPresenter {
 
     @Override
     public void startOperation(Bitmap bitmap) {
-        photoMosaicBusiness = new PhotoMosaicBusiness(bitmap, 32, 32);
+        photoMosaicBusiness = new PhotoMosaicBusiness(bitmap, 100, 100);
         if (!isViewAttached())
             return;
         getView().disablePickButton();
@@ -54,15 +47,16 @@ public class PhotoMosaicPresenterImpl extends PhotoMosaicPresenter {
                         if (!isViewAttached())
                             return;
 
-                        getView().updateStatus(Defs.RETRIEVING_IMAGE);
-                        getBitmap(bitmap, tiles, bitmap.getWidth(), bitmap.getHeight());
+                        getView().updateStatus(Defs.DIVIDE_IMAGE);
+                        showPhotoMosaic(bitmap, tiles, bitmap.getWidth(), bitmap.getHeight());
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         if (!isViewAttached())
                             return;
-                        getView().failure(e.getMessage());
+                        getView().updateStatus(Defs.ERROR_MESSAGE);
+                        getView().failure(Defs.ERROR_MESSAGE);
                         getView().hideLoading();
                         getView().enablePickButton();
 
@@ -79,12 +73,12 @@ public class PhotoMosaicPresenterImpl extends PhotoMosaicPresenter {
     }
 
     @Override
-    public void getBitmap(final Bitmap originalBitmap, final List<List<Tile>> tiles, final int originalBitmapWidth, final int originalBitmapHeight) {
+    public void showPhotoMosaic(final Bitmap originalBitmap, final List<List<Tile>> tiles, final int originalBitmapWidth, final int originalBitmapHeight) {
 
 
         if (!isViewAttached())
             return;
-        getView().updateStatus(Defs.RETRIEVING_IMAGE);
+        getView().updateStatus(Defs.LOADING_IMAGE);
 
         photoMosaicBusiness.mergeRowsToBigTile(originalBitmap, tiles, originalBitmapWidth, originalBitmapHeight).
                 observeOn(AndroidSchedulers.mainThread()).
@@ -107,7 +101,12 @@ public class PhotoMosaicPresenterImpl extends PhotoMosaicPresenter {
             public void onError(Throwable e) {
                 if (!isViewAttached())
                     return;
-                getView().failure(e.getMessage());
+                getView().updateStatus(Defs.ERROR_MESSAGE);
+                getView().failure(Defs.ERROR_MESSAGE);
+                getView().hideLoading();
+                getView().enablePickButton();
+
+
             }
 
             @Override
