@@ -11,24 +11,25 @@ import com.canva.util.Defs;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.MaybeObserver;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class PhotoMosaicPresenterImpl extends PhotoMosaicPresenter {
     public static final String TAG = "MosaicPresenterImpl";
     private PhotoMosaicBusiness photoMosaicBusiness;
-    private Bitmap updatedBitmap;
 
     @Override
     public void startOperation(Bitmap bitmap) {
-        updatedBitmap = bitmap;
         photoMosaicBusiness = new PhotoMosaicBusiness(bitmap, 32, 32);
         if (!isViewAttached())
             return;
+        getView().disablePickButton();
         getView().showLoading();
         divideImage(bitmap);
     }
@@ -38,7 +39,7 @@ public class PhotoMosaicPresenterImpl extends PhotoMosaicPresenter {
 
         if (!isViewAttached())
             return;
-        getView().updateStatus(Defs.DIVIDE_IMAGE, bitmap);
+        getView().updateStatus(Defs.DIVIDE_IMAGE);
 
         photoMosaicBusiness.divideImage().observeOn(AndroidSchedulers.mainThread()).
                 subscribeOn(Schedulers.io()).
@@ -53,7 +54,7 @@ public class PhotoMosaicPresenterImpl extends PhotoMosaicPresenter {
                         if (!isViewAttached())
                             return;
 
-                        getView().updateStatus(Defs.RETRIEVING_IMAGE, bitmap);
+                        getView().updateStatus(Defs.RETRIEVING_IMAGE);
                         getBitmap(bitmap, tiles, bitmap.getWidth(), bitmap.getHeight());
                     }
 
@@ -63,6 +64,8 @@ public class PhotoMosaicPresenterImpl extends PhotoMosaicPresenter {
                             return;
                         getView().failure(e.getMessage());
                         getView().hideLoading();
+                        getView().enablePickButton();
+
 
                     }
 
@@ -78,28 +81,14 @@ public class PhotoMosaicPresenterImpl extends PhotoMosaicPresenter {
     @Override
     public void getBitmap(final Bitmap originalBitmap, final List<List<Tile>> tiles, final int originalBitmapWidth, final int originalBitmapHeight) {
 
-        getView().updateStatus(Defs.RETRIEVING_IMAGE, null);
 
-        updatedBitmap =  Bitmap.createBitmap(originalBitmapWidth, originalBitmapHeight, Bitmap.Config.ARGB_8888);
+        if (!isViewAttached())
+            return;
+        getView().updateStatus(Defs.RETRIEVING_IMAGE);
 
-
-        List<Observable<Tile>> observables = new ArrayList<>();
-        for (List<Tile> tile : tiles) {
-            observables.add(photoMosaicBusiness.zipRowOfTilesObservables(tile, originalBitmapWidth));
-        }
-
-
-        Observable.mergeDelayError(observables).doOnNext(new Consumer<Tile>() {
-            @Override
-            public void accept(Tile tile) throws Exception {
-                BitmapCombiner bitmapCombine = new BitmapCombiner();
-                updatedBitmap = bitmapCombine.combineBitmapsVertical(updatedBitmap, tile, originalBitmapWidth, originalBitmapHeight);
-                tile.setBitmap(updatedBitmap);
-                tile.setAvgColor("Eslam");
-
-                Log.d(TAG, "accept() returned: " + tile.getHeight());
-            }
-        }).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io()).subscribe(new Observer<Tile>() {
+        photoMosaicBusiness.mergeRowsToBigTile(originalBitmap, tiles, originalBitmapWidth, originalBitmapHeight).
+                observeOn(AndroidSchedulers.mainThread()).
+                subscribeOn(Schedulers.io()).subscribe(new Observer<Tile>() {
             @Override
             public void onSubscribe(Disposable d) {
 
@@ -107,62 +96,31 @@ public class PhotoMosaicPresenterImpl extends PhotoMosaicPresenter {
 
             @Override
             public void onNext(Tile tile) {
-
-
-                getView().updateStatus(Defs.RETRIEVING_IMAGE, tile.getBitmap());
-
+                if (!isViewAttached())
+                    return;
+                getView().updateBitmap(tile.getBitmap());
 
             }
 
+
             @Override
             public void onError(Throwable e) {
-                e.printStackTrace();
+                if (!isViewAttached())
+                    return;
+                getView().failure(e.getMessage());
             }
 
             @Override
             public void onComplete() {
-                System.out.println("Complete");
-                getView().updateStatus(Defs.COMPLETE, null);
+                if (!isViewAttached())
+                    return;
+                getView().updateStatus(Defs.COMPLETE);
+                getView().hideLoading();
+                getView().enablePickButton();
+
 
             }
         });
 
-       /* photoMosaicBusiness.zipRowsToBigTile(observables, originalBitmapWidth, originalBitmapHeight)
-                .observeOn(AndroidSchedulers.mainThread()).
-                subscribeOn(Schedulers.io()).
-                subscribe(new Observer<Bitmap>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(Bitmap bitmap) {
-
-                        if (!isViewAttached())
-                            return;
-
-                        getView().updateStatus(Defs.RETRIEVING_IMAGE, bitmap);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        if (!isViewAttached())
-                            return;
-                        getView().failure(e.getMessage());
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                        if (!isViewAttached())
-                            return;
-                        getView().hideLoading();
-
-
-                    }
-                });
-*/
     }
 }

@@ -11,10 +11,14 @@ public interface PhotoMosaicView extends MvpView {
 
     void hideLoading();
 
-    void updateStatus(@Defs.ImageStatus String status, Bitmap updatedBitmap);
+    void updateStatus(@Defs.ImageStatus String status);
 
-    void success(Bitmap updatedBitmap);
+    void updateBitmap(Bitmap updatedBitmap);
 
 
     void failure(String message);
+
+    void disablePickButton();
+
+    void enablePickButton();
 }

@@ -10,17 +10,18 @@ import java.util.List;
 public class BitmapAverageCalculator {
 
 
+    public String calculate(Bitmap originalBitmap, Tile tile) {
 
-    public String calculate(Bitmap bitmap) {
+        Bitmap temp = Bitmap.createBitmap(originalBitmap, tile.getXPos(), tile.getYPos(), tile.getWidth(), tile.getHeight());
 
         int redBucket = 0;
         int greenBucket = 0;
         int blueBucket = 0;
         int pixelCount = 0;
 
-        for (int y = 0; y < bitmap.getHeight(); y++) {
-            for (int x = 0; x < bitmap.getWidth(); x++) {
-                int c = bitmap.getPixel(x, y);
+        for (int y = 0; y < temp.getHeight(); y++) {
+            for (int x = 0; x < temp.getWidth(); x++) {
+                int c = temp.getPixel(x, y);
 
                 pixelCount++;
                 redBucket += Color.red(c);
@@ -32,18 +33,4 @@ public class BitmapAverageCalculator {
         return String.format("%02x%02x%02x", (redBucket / pixelCount), greenBucket / pixelCount, blueBucket / pixelCount);
 
     }
-
-    public List<List<Tile>> getAverageColorForTiles(List<List<Tile>> tilesList) {
-
-        for (int i = 0; i < tilesList.size(); i++) {
-            for (int j = 0; j < tilesList.get(i).size(); j++) {
-                Tile temp = tilesList.get(i).get(j);
-                temp.setAvgColor(calculate(temp.getBitmap()));
-                tilesList.get(i).set(j, temp);
-            }
-        }
-        return tilesList;
-    }
-
-
 }

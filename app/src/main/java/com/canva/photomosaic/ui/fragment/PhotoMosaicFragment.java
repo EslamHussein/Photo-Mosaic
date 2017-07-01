@@ -76,17 +76,19 @@ public class PhotoMosaicFragment extends BaseFragment<PhotoMosaicPresenter> impl
         if (requestCode == PICK_FROM_GALLERY && resultCode == Activity.RESULT_OK) {
 
             if (data != null) {
-
-                Bitmap bitmap;
                 try {
-                    bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), data.getData());
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), data.getData());
                     selectedImageView.setImageBitmap(bitmap);
                     getPresenter().startOperation(bitmap);
                 } catch (Exception e) {
                     e.printStackTrace();
                     failure(e.getMessage());
                 }
+            } else {
+                failure(TextUtils.getString(R.string.cannot_retrieve_the_image));
             }
+        } else {
+            failure(TextUtils.getString(R.string.cannot_retrieve_the_image));
         }
 
     }
@@ -110,25 +112,36 @@ public class PhotoMosaicFragment extends BaseFragment<PhotoMosaicPresenter> impl
     }
 
     @Override
-    public void updateStatus(String status, Bitmap updatedBitmap) {
-        if (updatedBitmap != null)
-            selectedImageView.setImageBitmap(updatedBitmap);
-
+    public void updateStatus(String status) {
         statusImageView.setText(status);
 
 
     }
 
-
     @Override
-    public void success(Bitmap updatedBitmap) {
+    public void updateBitmap(Bitmap updatedBitmap) {
         selectedImageView.setImageBitmap(updatedBitmap);
 
     }
 
+
     @Override
     public void failure(String message) {
         Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void enablePickButton() {
+        pickImageButton.setEnabled(true);
+        pickImageButton.setClickable(true);
+
+
+    }
+
+    @Override
+    public void disablePickButton() {
+        pickImageButton.setEnabled(false);
+        pickImageButton.setClickable(false);
 
     }
 }

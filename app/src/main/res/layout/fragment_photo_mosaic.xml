@@ -23,12 +23,12 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:visibility="visible" />
+            android:visibility="invisible" />
 
         <TextView
+            android:id="@+id/text_view_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/text_view_status"
             android:layout_centerInParent="true"
             android:layout_toEndOf="@+id/progressBar"
             android:layout_toStartOf="@+id/button_pick_image" />

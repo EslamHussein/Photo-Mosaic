@@ -52,8 +52,8 @@ public class BitmapDivider {
                 }
                 int x = j * tileWidth;
                 int y = i * tileHeight;
-                Bitmap temp = Bitmap.createBitmap(originalBitmap, x, y, tempTileWidth, tempTileHeight);
-                tiles.get(i).add(new Tile(x, y, temp, tempTileWidth, tempTileHeight));
+//                Bitmap temp = Bitmap.createBitmap(originalBitmap, x, y, tempTileWidth, tempTileHeight);
+                tiles.get(i).add(new Tile(x, y, tempTileWidth, tempTileHeight));
             }
 
         }

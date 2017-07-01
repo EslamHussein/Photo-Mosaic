@@ -7,5 +7,6 @@
     <string name="dividing_the_image">Dividing the image</string>
     <string name="getting_average_colors">Getting average colors</string>
     <string name="retrieving_image">Retrieving images</string>
+    <string name="cannot_retrieve_the_image">Cannot retrieve the image</string>
 
 </resources>

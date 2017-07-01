@@ -1,6 +1,7 @@
 package com.canva.photomosaic.business;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.canva.photomosaic.model.cloud.CloudRepo;
 import com.canva.photomosaic.model.dto.Tile;
@@ -9,7 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 
 
@@ -19,10 +23,12 @@ public class PhotoMosaicBusiness {
     private BitmapAverageCalculator averageCalculator;
     private CloudRepo cloudRepo;
     private BitmapCombiner bitmapCombiner;
-
+    private Bitmap originalBitmap;
     private static final String TAG = PhotoMosaicBusiness.class.getName();
 
+
     public PhotoMosaicBusiness(Bitmap originalBitmap, int tileWidth, int tileHeight) {
+        this.originalBitmap = originalBitmap;
         bitmapDivider = new BitmapDivider(originalBitmap, tileWidth, tileHeight);
         averageCalculator = new BitmapAverageCalculator();
         cloudRepo = new CloudRepo();
@@ -48,8 +54,8 @@ public class PhotoMosaicBusiness {
         return Observable.fromCallable(new Callable<Tile>() {
             @Override
             public Tile call() throws Exception {
-                tile.setAvgColor(averageCalculator.calculate(tile.getBitmap()));
-                tile.setNewBitmap(cloudRepo.getImage(tile));
+                tile.setAvgColor(averageCalculator.calculate(originalBitmap, tile));
+                tile.setBitmap(cloudRepo.getImage(tile));
                 return tile;
 
             }
@@ -86,24 +92,31 @@ public class PhotoMosaicBusiness {
 
     }
 
+    Bitmap mutableBitmap;
 
-   /* public Observable<Bitmap> zipRowsToBigTile(List<Observable<Tile>> observableList, final int originalWidth, final int originalHeight) {
+    public Observable<Tile> mergeRowsToBigTile(Bitmap imuoriginalBitmap, List<List<Tile>> tiles, final int originalBitmapWidth, final int originalBitmapHeight) {
+
+        mutableBitmap = imuoriginalBitmap.copy(Bitmap.Config.ARGB_8888, true);
+
+        List<Observable<Tile>> observables = new ArrayList<>();
+        for (List<Tile> tile : tiles) {
+            observables.add(zipRowOfTilesObservables(tile, originalBitmapWidth));
+        }
 
 
-        return Observable.zip(observableList, new Function<Object[], Bitmap>() {
+        return Observable.mergeDelayError(observables).doOnNext(new Consumer<Tile>() {
             @Override
-            public Bitmap apply(Object[] objects) throws Exception {
-                List<Tile> tileList = new ArrayList<>();
-                for (Object object : objects) {
-                    Tile tile = (Tile) object;
-                    tileList.add(tile);
-                }
-                return bitmapCombiner.combineBitmapsVertical(tileList, originalWidth, originalHeight);
+            public void accept(Tile tile) throws Exception {
+                BitmapCombiner bitmapCombine = new BitmapCombiner();
+                mutableBitmap = bitmapCombine.combineBitmapsVertical(mutableBitmap, tile);
+                tile.setBitmap(mutableBitmap);
+
+                Log.d(TAG, "accept() returned: " + tile.getHeight());
             }
         });
 
 
-    }*/
+    }
 
 
 }

@@ -10,8 +10,7 @@ public class Tile {
 
     private int xPos;
     private int yPos;
-    private transient Bitmap bitmap;
-    private Bitmap newBitmap;
+    private Bitmap bitmap;
     private String avgColor;
     private int width;
     private int height;
@@ -20,10 +19,9 @@ public class Tile {
     public Tile() {
     }
 
-    public Tile(int xPos, int yPos, Bitmap bitmap, int width, int height) {
+    public Tile(int xPos, int yPos, int width, int height) {
         this.xPos = xPos;
         this.yPos = yPos;
-        this.bitmap = bitmap;
         this.width = width;
         this.height = height;
     }
@@ -42,14 +40,6 @@ public class Tile {
 
     public void setYPos(int yPos) {
         this.yPos = yPos;
-    }
-
-    public Bitmap getBitmap() {
-        return bitmap;
-    }
-
-    public void setBitmap(Bitmap bitmap) {
-        this.bitmap = bitmap;
     }
 
     public int getWidth() {
@@ -76,11 +66,11 @@ public class Tile {
         this.avgColor = avgColor;
     }
 
-    public Bitmap getNewBitmap() {
-        return newBitmap;
+    public Bitmap getBitmap() {
+        return bitmap;
     }
 
-    public void setNewBitmap(Bitmap newBitmap) {
-        this.newBitmap = newBitmap;
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
     }
 }

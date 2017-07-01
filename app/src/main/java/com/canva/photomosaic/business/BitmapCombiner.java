@@ -3,6 +3,7 @@ package com.canva.photomosaic.business;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 
 import com.canva.photomosaic.model.dto.Tile;
 
@@ -20,7 +21,7 @@ public class BitmapCombiner {
         Canvas canvas = new Canvas(tempBitmap);
         int left = 0;
         for (int i = 0; i < tiles.size(); i++) {
-            canvas.drawBitmap(tiles.get(i).getNewBitmap(), left, 0f, null);
+            canvas.drawBitmap(tiles.get(i).getBitmap(), left, 0f, null);
             left += tiles.get(i).getWidth();
         }
         tile.setBitmap(tempBitmap);
@@ -30,11 +31,13 @@ public class BitmapCombiner {
         return tile;
     }
 
-    public Bitmap combineBitmapsVertical(Bitmap originalBitmap, Tile newBitmap, int width, int height) {
-//        Bitmap temp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+    public Bitmap combineBitmapsVertical(Bitmap originalBitmap, Tile newTile) {
+        Bitmap smallBitmap = Bitmap.createBitmap(newTile.getWidth(), newTile.getHeight(), Bitmap.Config.ARGB_8888);
+        smallBitmap.eraseColor(Color.TRANSPARENT);
         Canvas canvas = new Canvas(originalBitmap);
-        int top = newBitmap.getYPos();
-        canvas.drawBitmap(newBitmap.getBitmap(), 0f, top, null);
+        int top = newTile.getYPos();
+        canvas.drawBitmap(smallBitmap, 0f, top, null);
+        canvas.drawBitmap(newTile.getBitmap(), 0f, top, null);
 
         return originalBitmap;
     }
