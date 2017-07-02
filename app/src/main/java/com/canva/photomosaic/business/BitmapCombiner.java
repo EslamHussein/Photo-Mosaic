@@ -38,6 +38,7 @@ public class BitmapCombiner {
         int top = newTile.getYPos();
         canvas.drawBitmap(smallBitmap, 0f, top, null);
         canvas.drawBitmap(newTile.getBitmap(), 0f, top, null);
+        smallBitmap.recycle();
 
         return originalBitmap;
     }

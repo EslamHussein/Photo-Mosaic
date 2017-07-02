@@ -24,15 +24,20 @@ public class PhotoMosaicBusiness {
     private CloudRepo cloudRepo;
     private BitmapCombiner bitmapCombiner;
     private Bitmap originalBitmap;
+    private Bitmap updatedBitmap;
     private static final String TAG = PhotoMosaicBusiness.class.getName();
 
 
-    public PhotoMosaicBusiness(Bitmap originalBitmap, int tileWidth, int tileHeight) {
+    public PhotoMosaicBusiness(BitmapDivider bitmapDivider,
+                               BitmapAverageCalculator averageCalculator,
+                               CloudRepo cloudRepo, BitmapCombiner bitmapCombiner,
+                               Bitmap originalBitmap) {
+        this.bitmapDivider = bitmapDivider;
+        this.averageCalculator = averageCalculator;
+        this.cloudRepo = cloudRepo;
+        this.bitmapCombiner = bitmapCombiner;
         this.originalBitmap = originalBitmap;
-        bitmapDivider = new BitmapDivider(originalBitmap, tileWidth, tileHeight);
-        averageCalculator = new BitmapAverageCalculator();
-        cloudRepo = new CloudRepo();
-        bitmapCombiner = new BitmapCombiner();
+        this.updatedBitmap = originalBitmap;
     }
 
     public Observable<List<List<Tile>>> divideImage() {
@@ -41,7 +46,7 @@ public class PhotoMosaicBusiness {
         return Observable.fromCallable(new Callable<List<List<Tile>>>() {
             @Override
             public List<List<Tile>> call() throws Exception {
-                List<List<Tile>> tiles = bitmapDivider.divide();// divided to tiles
+                List<List<Tile>> tiles = bitmapDivider.divide();
                 return tiles;
             }
         });
@@ -92,11 +97,10 @@ public class PhotoMosaicBusiness {
 
     }
 
-    Bitmap mutableBitmap;
 
-    public Observable<Tile> mergeRowsToBigTile(Bitmap imuoriginalBitmap, List<List<Tile>> tiles, final int originalBitmapWidth, final int originalBitmapHeight) {
+    public Observable<Tile> mergeRowsToBigTile(Bitmap originalBitmap, List<List<Tile>> tiles, final int originalBitmapWidth, final int originalBitmapHeight) {
 
-        mutableBitmap = imuoriginalBitmap.copy(Bitmap.Config.ARGB_8888, true);
+        updatedBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true);
 
         List<Observable<Tile>> observables = new ArrayList<>();
         for (List<Tile> tile : tiles) {
@@ -108,10 +112,10 @@ public class PhotoMosaicBusiness {
             @Override
             public void accept(Tile tile) throws Exception {
                 BitmapCombiner bitmapCombine = new BitmapCombiner();
-                mutableBitmap = bitmapCombine.combineBitmapsVertical(mutableBitmap, tile);
-                tile.setBitmap(mutableBitmap);
-
+                updatedBitmap = bitmapCombine.combineBitmapsVertical(updatedBitmap, tile);
+                tile.setBitmap(updatedBitmap);
                 Log.d(TAG, "accept() returned: " + tile.getHeight());
+
             }
         });
 

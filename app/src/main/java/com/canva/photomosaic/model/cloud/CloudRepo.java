@@ -30,7 +30,7 @@ public class CloudRepo {
 
 
     private String buildUrl(Tile tile) {
-        return "http://192.168.1.3:8765/color/".
+        return "http://192.168.1.9:8765/color/".
                 concat(String.valueOf(tile.getWidth()).concat("/").
                         concat(String.valueOf(tile.getHeight())).concat("/").
                         concat(tile.getAvgColor()));

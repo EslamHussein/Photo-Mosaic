@@ -2,6 +2,7 @@ package com.canva.photomosaic.ui.presenter;
 
 import android.graphics.Bitmap;
 
+import com.canva.photomosaic.business.Injection;
 import com.canva.photomosaic.business.PhotoMosaicBusiness;
 import com.canva.photomosaic.model.dto.Tile;
 import com.canva.util.Defs;
@@ -17,9 +18,13 @@ public class PhotoMosaicPresenterImpl extends PhotoMosaicPresenter {
     public static final String TAG = "MosaicPresenterImpl";
     private PhotoMosaicBusiness photoMosaicBusiness;
 
+
     @Override
     public void startOperation(Bitmap bitmap) {
-        photoMosaicBusiness = new PhotoMosaicBusiness(bitmap, 100, 100);
+
+        photoMosaicBusiness = new PhotoMosaicBusiness(Injection.provideBitmapDivider(bitmap, 32, 32),
+                Injection.provideBitmapAverageCalculator(), Injection.provideCloudRepo(),
+                Injection.provideBitmapCombiner(), bitmap);
         if (!isViewAttached())
             return;
         getView().disablePickButton();
@@ -55,11 +60,11 @@ public class PhotoMosaicPresenterImpl extends PhotoMosaicPresenter {
                     public void onError(Throwable e) {
                         if (!isViewAttached())
                             return;
+
                         getView().updateStatus(Defs.ERROR_MESSAGE);
                         getView().failure(Defs.ERROR_MESSAGE);
                         getView().hideLoading();
                         getView().enablePickButton();
-
 
                     }
 
