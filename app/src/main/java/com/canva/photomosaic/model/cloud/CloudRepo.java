@@ -13,7 +13,7 @@ import java.net.URL;
 
 public class CloudRepo {
 
-    private static final String BASE_URL = "http://192.168.1.9:8765/color/";
+    private static final String BASE_URL = "http://10.0.2.2:8765/color/";
 
     public Bitmap getImage(Tile tile) throws IOException {
         URL url = new URL(buildUrl(tile));
